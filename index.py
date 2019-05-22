@@ -14,9 +14,9 @@ if __name__ == '__main__':
     
     parser.add_argument('-t', '--template', help="the name of the template to search", action="store", type=int, dest="template")
     parser.add_argument('-s', '--searchTemplate', help="the name of the template to search", action="store", type=str, dest="search")
+    parser.add_argument('--type', help="type of server to instantiate", action="store", choices=['pro','smart'], type=str, dest="type")
     parser.add_argument('-a', '--action', help="choose an action to perform", choices=['list','new'], nargs="?", action="store",default="list",dest="action")
-    parser.add_argument('-u', '--username', help='Specify username.', action='store', dest='username')
-    parser.add_argument('-p', '--password', help='Specify password.', action='store', dest='password')    
+    parser.add_argument('-p', '--password', help='machine root password.', action='store', dest='password')       
     parser.add_argument('-n', '--name', help='machine name.', action='store', dest='name')    
     
     p = parser.parse_args()
@@ -29,11 +29,9 @@ if __name__ == '__main__':
 
 
 
-    def randomString(stringLength=10):
-        letters = string.ascii_lowercase
-        return ''.join(random.choice(letters) for i in range(stringLength))
     if action == 'new':
         if p.template is None: sys.exit("missing  system id")
+        if p.password is None: sys.exit("server password missing")
         if isinstance(p.template, int) != True: sys.exit("template id must be and integer")
         if p.name is None:
             name = randomString()
@@ -42,19 +40,34 @@ if __name__ == '__main__':
             
         ci = CloudInterface(dc=1)
         ci.login(username=username, password=password, load=True)
-        ip = ci.purchase_ip()
+        
 
         # template_id: 1605 [Template Name: CentOS 7.x 64bit, Hypervisor: VW, Id: 1605, Enabled: True]
 
-        c = ProVmCreator(name=name, admin_password='?W@^ckx#d?3WsR2F', template_id=p.template, auth_obj=ci.auth)
-        c.set_cpu_qty(2)
-        c.set_ram_qty(6)
+        if p.type == 'pro':
+            ip = ci.purchase_ip()
+            c = ProVmCreator(name=name, admin_password=p.password, template_id=p.template, auth_obj=ci.auth)
+            c.set_cpu_qty(2)
+            c.set_ram_qty(6)
 
-        c.add_public_ip(public_ip_address_resource_id=ip.resid)
-        c.add_virtual_disk(20)
-        #c.add_virtual_disk(40)
+            c.add_public_ip(public_ip_address_resource_id=ip.resid)
+            c.add_virtual_disk(20)
+            #c.add_virtual_disk(40)
+        else:
+            c = SmartVmCreator(name=p.name, admin_password=p.password, template_id=p.template, auth_obj=ci.auth)
+            c.set_type(ci.get_package_id('small'))
 
-        print(c.commit(url=ci.wcf_baseurl, debug=True))
+        res = c.commit(url=ci.wcf_baseurl, debug=True)
+        print(res)
+
+        if res == True:
+            assignedIp = ci.get_vm(p.name)[0].ip_addr
+            print('To connect your new machine via ssh use these credentials')
+            print('IP : '+assignedIp)
+            print('User: root')
+            print('Password: '+p.password)
+        else:
+            print('Ops an error occured while tryng to create your machine')
 
 
     elif action == 'list':
