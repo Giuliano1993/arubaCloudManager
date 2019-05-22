@@ -15,9 +15,10 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--template', help="the name of the template to search", action="store", type=int, dest="template")
     parser.add_argument('-s', '--searchTemplate', help="the name of the template to search", action="store", type=str, dest="search")
     parser.add_argument('--type', help="type of server to instantiate", action="store", choices=['pro','smart'], type=str, dest="type")
-    parser.add_argument('-a', '--action', help="choose an action to perform", choices=['list','new'], nargs="?", action="store",default="list",dest="action")
+    parser.add_argument('-a', '--action', help="choose an action to perform", choices=['templateList','new','list'], nargs="?", action="store",default="list",dest="action")
     parser.add_argument('-p', '--password', help='machine root password.', action='store', dest='password')       
     parser.add_argument('-n', '--name', help='machine name.', action='store', dest='name')    
+    parser.add_argument('-d', '--details', help="get more details on the machines", action="store_true")
     
     p = parser.parse_args()
 
@@ -70,7 +71,7 @@ if __name__ == '__main__':
             print('Ops an error occured while tryng to create your machine')
 
 
-    elif action == 'list':
+    elif action == 'templateList':
         if p.search is None: sys.exit("missing  system name")
 
         ci = CloudInterface(dc=1)
@@ -79,5 +80,22 @@ if __name__ == '__main__':
 
         from pprint import pprint
         pprint(ci.find_template(name=p.search, hv=4))
+    elif action == 'list':
+        ci = CloudInterface(dc=1)
+        ci.login(username=username, password=password, load=True)
+        vms = ci.vmlist
+        for vm in vms:
+            print('\n')
+            print('Machine ID: '+str(vm.sid))
+            print('Machine Name: '+vm.vm_name)
+            print('Machine Ip: '+vm.ip_addr)
+            print('Machine Status: '+str(vm.status))
+            if p.details:
+                print('CPU qty: '+str(vm.cpu_qty))
+                print('RAM qty: '+str(vm.ram_qty))
+                print('HDs Size: '+str(vm.hd_total_size)+'GB')
+                print('HDs qty: '+str(vm.hd_qty))
+
+            print('\n---------------------\n')
     else:
-        print('No valid action selected: choose list or new')
+        print('No valid action selected: choose templateList, list or new')

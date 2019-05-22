@@ -1,8 +1,8 @@
-#Aruba Cloud Manager
+# Aruba Cloud Manager
 
 This is a wrapper command line utility to manage Aruba cloud servers
 
-##Installation 
+## Installation 
 To get this to work you need to install its dependencies:
 
 ~~~
@@ -12,14 +12,14 @@ pip install pyarubacloud
 
 Insert inside .env file your aruba cloud credentials.
 
-###List Available Templates
+### List Available Templates
 
 ~~~
 python index.py -a list -s osYouNeedHere
 ~~~
 
 
-###Create new machine
+### Create new machine
 
 ~~~
 python index.py -a new -p serverPassword -n serverName
