@@ -15,7 +15,7 @@ Insert inside .env file your aruba cloud credentials.
 ### List Available Templates
 
 ~~~
-python index.py -a list -s osYouNeedHere
+python index.py -a templateList -s osYouNeedHere
 ~~~
 
 
@@ -23,4 +23,16 @@ python index.py -a list -s osYouNeedHere
 
 ~~~
 python index.py -a new -p serverPassword -n serverName
+~~~
+
+### Check server list
+
+~~~
+python index.py -a list
+~~~
+
+or, if you want more details
+
+~~~
+python index.py -a list -d
 ~~~
