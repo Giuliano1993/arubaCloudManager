@@ -79,7 +79,11 @@ if __name__ == '__main__':
         ci.get_hypervisors()
 
         from pprint import pprint
-        pprint(ci.find_template(name=p.search, hv=4))
+        #pprint(ci.find_template(name=p.search, hv=4))
+        ts = ci.find_template(name=p.search, hv=4)
+        for t in (tt for tt in ts if tt.enabled == True):
+            pprint(t)
+            
     elif action == 'list':
         ci = CloudInterface(dc=1)
         ci.login(username=username, password=password, load=True)

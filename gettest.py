@@ -4,6 +4,7 @@ from ArubaCloud.objects import ProVmCreator
 import argparse
 import sys
 import os
+import ftplib
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -17,6 +18,4 @@ if __name__ == '__main__':
     ci.login(username=username, password=password, load=True)
     #print(ci.get_ip_by_vm(ci.get_vm('small01')[0]))
     print(ci.get_vm('small01')[0].ip_addr)
-
-
     print(ci.vmlist)
