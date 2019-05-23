@@ -16,8 +16,6 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--searchTemplate', help="the name of the template to search", action="store", type=str, dest="search")
     parser.add_argument('--type', help="type of server to instantiate", action="store", choices=['pro','smart'], type=str, dest="type")
     parser.add_argument('-a', '--action', help="choose an action to perform", choices=['templateList','new','list'], nargs="?", action="store",default="list",dest="action")
-    parser.add_argument('-p', '--password', help='machine root password.', action='store', dest='password')       
-    parser.add_argument('-n', '--name', help='machine name.', action='store', dest='name')    
     parser.add_argument('-d', '--details', help="get more details on the machines", action="store_true")
     
     p = parser.parse_args()
@@ -32,31 +30,86 @@ if __name__ == '__main__':
 
     if action == 'new':
         if p.template is None: sys.exit("missing  system id")
-        if p.password is None: sys.exit("server password missing")
         if isinstance(p.template, int) != True: sys.exit("template id must be and integer")
-        if p.name is None:
-            name = randomString()
-        else:
-            name = p.name
-            
+        machineName = raw_input('Choose a name for your new machine:  ')
+        while machineName == None or machineName == '':
+            machineName = raw_input('You have to chosse a name for your new machine to continue:  ')
+
+        machinePassword = raw_input('Choose a strong password for logging in as root:  ')
+        while machinePassword == None or machinePassword == '':
+            machinePassword = raw_input('You have to chosse a root password to continue:  ')
+
         ci = CloudInterface(dc=1)
         ci.login(username=username, password=password, load=True)
-        
-
-        # template_id: 1605 [Template Name: CentOS 7.x 64bit, Hypervisor: VW, Id: 1605, Enabled: True]
-
+    
         if p.type == 'pro':
             ip = ci.purchase_ip()
-            c = ProVmCreator(name=name, admin_password=p.password, template_id=p.template, auth_obj=ci.auth)
-            c.set_cpu_qty(2)
-            c.set_ram_qty(6)
+            c = ProVmCreator(name=machineName, admin_password=machinePassword, template_id=p.template, auth_obj=ci.auth)
+            cpuQty = input('Choose how many cpu you want on your machine: ')
+            if cpuQty is None or cpuQty == 0:
+                cpuQty = 1
+            elif isinstance(cpuQty,str) == True:
+                while isinstance(cpuQty,int) == False:
+                    cpuQty = input('CPU qty must be an integer: ')
+                    if cpuQty is None or cpuQty == 0:
+                        cpuQty = 1
+
+
+            ramQty = input('Choose how much RAM you want on your machine: ')
+            if ramQty is None or ramQty == 0:
+                ramQty = 1
+            elif isinstance(ramQty,str) == True:
+                while isinstance(ramQty,int) == False:
+                    ramQty = input('RAM qty must be an integer: ')
+                    if ramQty is None or ramQty == 0:
+                        ramQty = 1
+
+            c.set_cpu_qty(cpuQty)
+            c.set_ram_qty(ramQty)
 
             c.add_public_ip(public_ip_address_resource_id=ip.resid)
-            c.add_virtual_disk(20)
+
+            diskSize = input('Choose how many GB you want on your HD: ')
+            if diskSize is None or diskSize == 0:
+                diskSize = 1
+            elif isinstance(diskSize,str) == True:
+                while isinstance(diskSize,int) == False:
+                    diskSize = input('HD size must be an integer: ')
+                    if diskSize is None or diskSize == 0:
+                        diskSize = 1
+            
+            c.add_virtual_disk(diskSize)
             #c.add_virtual_disk(40)
         else:
-            c = SmartVmCreator(name=p.name, admin_password=p.password, template_id=p.template, auth_obj=ci.auth)
-            c.set_type(ci.get_package_id('small'))
+            packageSize = ''
+            while packageSize is None or packageSize == '':
+                packageSize = raw_input('Choose a package for your brand new machine! [s = small / m = medium / l = large / xl = extra large / h = help]')
+                if(packageSize == 's'):
+                    packageSize = 'small'
+                elif(packageSize == 'm'):
+                    packageSize = 'medium'
+                elif(packageSize == 'l'):
+                    packageSize = 'large'
+                elif(packageSize == 'xl'):
+                    packageSize = 'extra large'
+                elif(packageSize == 'h'):
+                    print('\n')
+                    print('Small package: \n CPU = 1; RAM = 1GB; HD = 20GB')
+                    print('\n')
+                    print('Medium package: \n CPU = 1; RAM = 2GB; HD = 40GB')
+                    print('\n')
+                    print('Large package: \n CPU = 2; RAM = 4GB; HD = 80GB')
+                    print('\n')
+                    print('Extra large package: \n CPU = 4; RAM = 8GB; HD = 160GB')
+                    print('\n')
+                    packageSize = ''
+                else:
+                    print('you have chosen an invalid value')
+                    packageSize = ''
+
+
+            c = SmartVmCreator(name=machineName, admin_password=machinePassword, template_id=p.template, auth_obj=ci.auth)
+            c.set_type(ci.get_package_id(packageSize))
 
         res = c.commit(url=ci.wcf_baseurl, debug=True)
         print(res)
