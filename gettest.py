@@ -17,6 +17,7 @@ if __name__ == '__main__':
     ci = CloudInterface(dc=1)
     ci.login(username=username, password=password, load=True)
     #print(ci.get_ip_by_vm(ci.get_vm('small01')[0]))
+    '''
     print(ci.get_vm('small01')[0].ip_addr)
     print(ci.vmlist)
 
@@ -25,3 +26,7 @@ if __name__ == '__main__':
 
     nome = raw_input('scegli un nome per la tua macchina  ')
     print('hai scelto '+str(nome))
+    '''
+
+    
+    ci.create_snapshot(dc=1,server_id='439396')

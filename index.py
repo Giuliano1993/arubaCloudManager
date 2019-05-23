@@ -6,7 +6,6 @@ import sys
 import os
 from dotenv import load_dotenv
 load_dotenv()
-#ci.login(username="ARU-238352", password="fBSCu114!f", load=True)
 
 if __name__ == '__main__':
     
@@ -15,10 +14,16 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--template', help="the name of the template to search", action="store", type=int, dest="template")
     parser.add_argument('-s', '--searchTemplate', help="the name of the template to search", action="store", type=str, dest="search")
     parser.add_argument('--type', help="type of server to instantiate", action="store", choices=['pro','smart'], type=str, dest="type")
-    parser.add_argument('-a', '--action', help="choose an action to perform", choices=['templateList','new','list'], nargs="?", action="store",default="list",dest="action")
+    parser.add_argument('-a', '--action', help="choose an action to perform", choices=['templateList','new','list','info'], nargs="?", action="store",default="list",dest="action")
     parser.add_argument('-d', '--details', help="get more details on the machines", action="store_true")
+    parser.add_argument('-c', '--config', help="get a config file", type=argparse.FileType('r'), action="store", dest="config")
     
     p = parser.parse_args()
+
+    if p.config is not None:
+        import configImport
+        configImport.importConfig(p.config)
+        exit()
 
     action = p.action
     password = os.getenv('PASSWORD')
@@ -79,7 +84,7 @@ if __name__ == '__main__':
                         diskSize = 1
             
             c.add_virtual_disk(diskSize)
-            #c.add_virtual_disk(40)
+            #TODO: add a loop to add x virtual disks 
         else:
             packageSize = ''
             while packageSize is None or packageSize == '':
@@ -154,5 +159,20 @@ if __name__ == '__main__':
                 print('HDs qty: '+str(vm.hd_qty))
 
             print('\n---------------------\n')
+    elif action == 'info':
+        ci = CloudInterface(dc=1)
+        ci.login(username=username, password=password, load=True)
+        name = raw_input('please enter machine name: ')
+        vm = ci.get_vm(name)[0]
+        print('Machine ID: '+str(vm.sid))
+        print('Machine Name: '+vm.vm_name)
+        print('Machine Ip: '+vm.ip_addr)
+        print('Machine Status: '+str(vm.status))
+        if p.details:
+            print('CPU qty: '+str(vm.cpu_qty))
+            print('RAM qty: '+str(vm.ram_qty))
+            print('HDs Size: '+str(vm.hd_total_size)+'GB')
+            print('HDs qty: '+str(vm.hd_qty))
+
     else:
         print('No valid action selected: choose templateList, list or new')

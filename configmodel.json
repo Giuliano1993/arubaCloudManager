@@ -1,0 +1,18 @@
+{
+    "serverType":"smart",
+    "os":"Ubuntu Server 16",
+    "rootPassword":"mySecurePassword",
+    "takeSnapshot":true,
+    "machineName":"newMachine",
+    "packageSize":"small",
+    "cpuQty":2,
+    "ramQty":2,
+    "hdSize":2,
+    "execOnServer":[
+        "apt-get update",
+        "apt-get install apache2",
+        "apt-get install mysql-server",
+        "apt-get install php libapache2-mod-php",
+        "systemctl restart apache2"
+    ]
+}
