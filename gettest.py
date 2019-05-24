@@ -59,31 +59,7 @@ if __name__ == '__main__':
     #ci.create_snapshot(dc=1,server_id='439396')
     vm = ci.get_vm(machineName)[0]
     assignedIp = vm.ip_addr
-    '''
-    ssh = paramiko.SSHClient()
-    ssh.load_system_host_keys()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect('80.211.162.163', username='root', password=machinePassword)
-    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('ls -al')                
-    print(ssh_stdout.read())
-    ssh.close()
-    exit()
-    '''
-
-    '''
-    vm.poweroff()
-    status = 0
-    while status != 1:
-        print('.')
-        vm = ci.get_vm(machineName)[0]
-        status = vm.status
-        print(status)
-        if(status == 1):
-            vm.poweron()
-        else:
-            time.sleep(3)
-    '''
-
+    
     print(assignedIp)
     print('To connect your new machine via ssh use these credentials')
     datas = {

@@ -45,7 +45,7 @@ If you want an output in json format, just specify the -j parameter
 python index.py -a list -j
 ~~~
 
-###Automatic mode
+### Automatic mode
 You can pass a config file in json format to let all the operation work seamlessly and have in return a json in the stdin
 
 ~~~bash
