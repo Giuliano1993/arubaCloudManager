@@ -19,12 +19,16 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--details', help="get more details on the machines", action="store_true")
     parser.add_argument('-c', '--config', help="get a config file", type=argparse.FileType('r'), action="store", dest="config")
     parser.add_argument('-j', '--json', help="set list output as json", action="store_true")
+    parser.add_argument('-i', '--installer', help="installer to put on server and execute", type=argparse.FileType('r'), action="store", dest="installer")
     
     p = parser.parse_args()
 
     if p.config is not None:
         import configImport
-        configImport.importConfig(p.config)
+        if p.installer is not None:
+            configImport.importConfig(p.config, p.installer)
+        else:
+            configImport.importConfig(p.config)
         exit()
 
     action = p.action

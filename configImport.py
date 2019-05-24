@@ -5,13 +5,14 @@ import argparse
 import sys
 import os
 import json
+import pysftp
 from dotenv import load_dotenv
 import time;
 import paramiko
 load_dotenv()
 
 
-def importConfig(filecont):
+def importConfig(filecont, installer = None):
     
     data = json.load(filecont)
 
@@ -105,6 +106,19 @@ def importConfig(filecont):
                     print('now executing '+c+' ...')
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('ls -al')                
                     print(ssh_stdout.read())
+            if(installer is not None):
+                print('preparo upload dell\'installer')
+                srv = pysftp.Connection(host=assignedIp, username="root",password=machinePassword)
+                srv.put(installer.name)
+                ssh = paramiko.SSHClient()
+                ssh.load_system_host_keys()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(assignedIp, username='root', password=machinePassword)
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('chmod 700 '+os.path.basename(installer.name))
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('./'+os.path.basename(installer.name))
+                print(ssh_stdout.read())
+                print(ssh_stderr.read())
+                ssh.close()
             else:
                 time.sleep(3)
         json_mylist = json.dumps(datas, separators=(',', ':'))

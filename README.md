@@ -8,6 +8,8 @@ To get this to work you need to install its dependencies:
 ~~~bash
 pip install -U python-dotenv
 pip install pyarubacloud
+pip install paramiko
+pip install pysftp
 ~~~
 
 Insert inside .env file your aruba cloud credentials.
@@ -75,3 +77,10 @@ this is the config file schema
 }
 ~~~
 the only mandatory parameters are ```os``` and ```rootPassword``` 
+
+you can also indicate a file to upload on the server as installer to be installed! (for the moment this is available only in automatic mode!)
+
+~~~bash
+python index.py -c config.json -i installer.sh
+~~~
+

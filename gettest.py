@@ -5,14 +5,22 @@ import argparse
 import sys
 import os
 import time
-import ftplib
 import json
+from pprint import pprint
 import paramiko
+import pysftp
 from dotenv import load_dotenv
 load_dotenv()
 
 
 if __name__ == '__main__':
+
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--installer', help="installer to put on server and execute", type=argparse.FileType('r'), action="store", dest="installer")
+    p = parser.parse_args()
+
+
     password = os.getenv('PASSWORD')
     username = os.getenv('USERNAME')
     if username is None or username == '': sys.exit("missing  username")
@@ -20,16 +28,6 @@ if __name__ == '__main__':
     ci = CloudInterface(dc=1)
     ci.login(username=username, password=password, load=True)
     #print(ci.get_ip_by_vm(ci.get_vm('small01')[0]))
-    '''
-    print(ci.vmlist)
-    print(ci.get_vm('small01')[0].ip_addr)
-
-    val1 = input('quante cpu vuoi?  ')
-    print('hai scelto '+str(val1)+'CPUs')
-
-    nome = raw_input('scegli un nome per la tua macchina  ')
-    print('hai scelto '+str(nome))
-    '''
 
 
     data = {
@@ -45,7 +43,6 @@ if __name__ == '__main__':
         "execOnServer":[
             "apt-get update",
             "apt-get install -y apache2",
-            "apt-get install -y apache2",
             "apt-get install -y php libapache2-mod-php",
             "systemctl restart apache2"
         ]
@@ -60,8 +57,6 @@ if __name__ == '__main__':
     vm = ci.get_vm(machineName)[0]
     assignedIp = vm.ip_addr
     
-    print(assignedIp)
-    print('To connect your new machine via ssh use these credentials')
     datas = {
         'ip':assignedIp,
         'user':'root',
@@ -73,7 +68,6 @@ if __name__ == '__main__':
         print('.')
         vm = ci.get_vm(machineName)[0]
         status = vm.status
-        print(status)
         if status == 3 and 'execOnServer' in data:
             ssh = paramiko.SSHClient()
             ssh.load_system_host_keys()
@@ -88,6 +82,20 @@ if __name__ == '__main__':
                 print(ssh_stdout.read())
                 print('end')
                 print(c)
+            ssh.close()
+        if(p.installer is not None):
+            print('preparo upload dell\'installer')
+            srv = pysftp.Connection(host=assignedIp, username="root",password=machinePassword)
+            srv.put(p.installer.name)
+            ssh = paramiko.SSHClient()
+            ssh.load_system_host_keys()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(assignedIp, username='root', password=machinePassword)
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('chmod 700 '+os.path.basename(p.installer.name))
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('./'+os.path.basename(p.installer.name))
+            print(ssh_stdout.read())
+            print(ssh_stderr.read())
+            ssh.close()
         else:
             time.sleep(3)
     json_mylist = json.dumps(datas, separators=(',', ':'))
