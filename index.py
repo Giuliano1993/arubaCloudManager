@@ -4,6 +4,7 @@ from ArubaCloud.objects import ProVmCreator
 import argparse
 import sys
 import os
+import json
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -17,6 +18,7 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--action', help="choose an action to perform", choices=['templateList','new','list','info'], nargs="?", action="store",default="list",dest="action")
     parser.add_argument('-d', '--details', help="get more details on the machines", action="store_true")
     parser.add_argument('-c', '--config', help="get a config file", type=argparse.FileType('r'), action="store", dest="config")
+    parser.add_argument('-j', '--json', help="set list output as json", action="store_true")
     
     p = parser.parse_args()
 
@@ -146,19 +148,35 @@ if __name__ == '__main__':
         ci = CloudInterface(dc=1)
         ci.login(username=username, password=password, load=True)
         vms = ci.vmlist
+        vmlist = []
         for vm in vms:
-            print('\n')
-            print('Machine ID: '+str(vm.sid))
-            print('Machine Name: '+vm.vm_name)
-            print('Machine Ip: '+vm.ip_addr)
-            print('Machine Status: '+str(vm.status))
-            if p.details:
-                print('CPU qty: '+str(vm.cpu_qty))
-                print('RAM qty: '+str(vm.ram_qty))
-                print('HDs Size: '+str(vm.hd_total_size)+'GB')
-                print('HDs qty: '+str(vm.hd_qty))
+            if p.json:
+                vmlist.append({
+                    'id':str(vm.sid),
+                    'name':vm.vm_name,
+                    'ip':vm.ip_addr,
+                    'status':vm.status,
+                    'cpu':str(vm.cpu_qty),
+                    'ram':str(vm.ram_qty),
+                    'hdSize':str(vm.hd_total_size),
+                    'hdNumber':str(vm.hd_qty)
+                })
+            else:
+                print('\n')
+                print('Machine ID: '+str(vm.sid))
+                print('Machine Name: '+vm.vm_name)
+                print('Machine Ip: '+vm.ip_addr)
+                print('Machine Status: '+str(vm.status))
+                if p.details:
+                    print('CPU qty: '+str(vm.cpu_qty))
+                    print('RAM qty: '+str(vm.ram_qty))
+                    print('HDs Size: '+str(vm.hd_total_size)+'GB')
+                    print('HDs qty: '+str(vm.hd_qty))
 
-            print('\n---------------------\n')
+                print('\n---------------------\n')
+        if p.json:
+            json_mylist = json.dumps(vmlist, separators=(',', ':'))
+            print(json_mylist)
     elif action == 'info':
         ci = CloudInterface(dc=1)
         ci.login(username=username, password=password, load=True)

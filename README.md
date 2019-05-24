@@ -37,6 +37,14 @@ or, if you want more details
 python index.py -a list -d
 ~~~
 
+##### Json format
+
+If you want an output in json format, just specify the -j parameter
+
+~~~bash
+python index.py -a list -j
+~~~
+
 ###Automatic mode
 You can pass a config file in json format to let all the operation work seamlessly and have in return a json in the stdin
 
