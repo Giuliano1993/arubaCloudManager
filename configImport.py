@@ -83,7 +83,7 @@ def importConfig(filecont):
 
 
     if res == True:
-        assignedIp = ci.get_vm(p.name)[0].ip_addr
+        assignedIp = ci.get_vm(machineName)[0].ip_addr
         print('To connect your new machine via ssh use these credentials')
         datas = {
             'ip':assignedIp,
@@ -92,14 +92,21 @@ def importConfig(filecont):
         }
         status = 0
         while status != 3:
+            print('.')
             vm = ci.get_vm(machineName)[0]
             status = vm.status
-            if status == 3:
+            if status == 3 and 'execOnServer' in data:
                 ssh = paramiko.SSHClient()
+                ssh.load_system_host_keys()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())                
                 ssh.connect(assignedIp, username='root', password=machinePassword)
                 #let execute list of command, take it from jsonconfigfile
-                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('ls -al')                
-                print(ssh_stdout)
+                for c in data['execOnServer']:
+                    print('now executing '+c+' ...')
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('ls -al')                
+                    print(ssh_stdout.read())
+            else:
+                time.sleep(3)
         json_mylist = json.dumps(datas, separators=(',', ':'))
         print(json_mylist)
     else:

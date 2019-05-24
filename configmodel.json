@@ -3,16 +3,16 @@
     "os":"Ubuntu Server 16",
     "rootPassword":"mySecurePassword",
     "takeSnapshot":true,
-    "machineName":"newMachine",
+    "machineName":"newMachineRevenge",
     "packageSize":"small",
-    "cpuQty":2,
-    "ramQty":2,
-    "hdSize":2,
+    "cpuQty":1,
+    "ramQty":1,
+    "hdSize":5,
     "execOnServer":[
         "apt-get update",
-        "apt-get install apache2",
-        "apt-get install mysql-server",
-        "apt-get install php libapache2-mod-php",
+        "apt-get install -y apache2",
+        "apt-get install -y mysql-server",
+        "apt-get install -y php libapache2-mod-php",
         "systemctl restart apache2"
     ]
 }
