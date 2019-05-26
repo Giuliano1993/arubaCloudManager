@@ -29,6 +29,11 @@ if __name__ == '__main__':
     ci.login(username=username, password=password, load=True)
     #print(ci.get_ip_by_vm(ci.get_vm('small01')[0]))
 
+    vm = ci.get_vm('newMachineRevenge')[0]
+    status = vm.status
+    print(status)
+    print(status == 3)
+    exit()
 
     data = {
         "serverType":"smart",
@@ -54,7 +59,10 @@ if __name__ == '__main__':
 
 
     #ci.create_snapshot(dc=1,server_id='439396')
+    #vm = ci.get_vm(machineName)[0]
     vm = ci.get_vm(machineName)[0]
+    print(vm)
+    exit()
     assignedIp = vm.ip_addr
     
     datas = {
@@ -85,7 +93,9 @@ if __name__ == '__main__':
             ssh.close()
         if(p.installer is not None):
             print('preparo upload dell\'installer')
-            srv = pysftp.Connection(host=assignedIp, username="root",password=machinePassword)
+            cnopts = pysftp.CnOpts()
+            cnopts.hostkeys = None   
+            srv = pysftp.Connection(host=assignedIp, username="root",password=machinePassword,cnopts=cnopts)
             srv.put(p.installer.name)
             ssh = paramiko.SSHClient()
             ssh.load_system_host_keys()

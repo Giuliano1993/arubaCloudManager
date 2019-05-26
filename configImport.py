@@ -81,11 +81,12 @@ def importConfig(filecont, installer = None):
     res = c.commit(url=ci.wcf_baseurl, debug=True)
     print(res)
 
-
-
+    
+    time.sleep(5)
     if res == True:
+        ci = CloudInterface(dc=1)
+        ci.login(username=username, password=password, load=True)        
         assignedIp = ci.get_vm(machineName)[0].ip_addr
-        print('To connect your new machine via ssh use these credentials')
         datas = {
             'ip':assignedIp,
             'user':'root',
@@ -94,31 +95,36 @@ def importConfig(filecont, installer = None):
         status = 0
         while status != 3:
             print('.')
+            ci = CloudInterface(dc=1)
+            ci.login(username=username, password=password, load=True)            
             vm = ci.get_vm(machineName)[0]
             status = vm.status
-            if status == 3 and 'execOnServer' in data:
-                ssh = paramiko.SSHClient()
-                ssh.load_system_host_keys()
-                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())                
-                ssh.connect(assignedIp, username='root', password=machinePassword)
-                #let execute list of command, take it from jsonconfigfile
-                for c in data['execOnServer']:
-                    print('now executing '+c+' ...')
-                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('ls -al')                
+            if status == 3:
+                if 'execOnServer' in data:
+                    ssh = paramiko.SSHClient()
+                    ssh.load_system_host_keys()
+                    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())                
+                    ssh.connect(assignedIp, username='root', password=machinePassword)
+                    #let execute list of command, take it from jsonconfigfile
+                    for c in data['execOnServer']:
+                        print('now executing '+c+' ...')
+                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(c)                
+                        print(ssh_stdout.read())
+                if(installer is not None):
+                    print('preparo upload dell\'installer')
+                    cnopts = pysftp.CnOpts()
+                    cnopts.hostkeys = None   
+                    srv = pysftp.Connection(host=assignedIp, username="root",password=machinePassword,cnopts=cnopts)                
+                    srv.put(installer.name)
+                    ssh = paramiko.SSHClient()
+                    ssh.load_system_host_keys()
+                    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                    ssh.connect(assignedIp, username='root', password=machinePassword)
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('chmod 700 '+os.path.basename(installer.name))
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('./'+os.path.basename(installer.name))
                     print(ssh_stdout.read())
-            if(installer is not None):
-                print('preparo upload dell\'installer')
-                srv = pysftp.Connection(host=assignedIp, username="root",password=machinePassword)
-                srv.put(installer.name)
-                ssh = paramiko.SSHClient()
-                ssh.load_system_host_keys()
-                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(assignedIp, username='root', password=machinePassword)
-                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('chmod 700 '+os.path.basename(installer.name))
-                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('./'+os.path.basename(installer.name))
-                print(ssh_stdout.read())
-                print(ssh_stderr.read())
-                ssh.close()
+                    print(ssh_stderr.read())
+                    ssh.close()
             else:
                 time.sleep(3)
         json_mylist = json.dumps(datas, separators=(',', ':'))
