@@ -12,7 +12,7 @@ import paramiko
 load_dotenv()
 
 
-def importConfig(filecont, installer = None):
+def importConfig(filecont, installer = None, silent = False):
     
     data = json.load(filecont)
 
@@ -78,8 +78,9 @@ def importConfig(filecont, installer = None):
 
         c = SmartVmCreator(name=machineName, admin_password=machinePassword, template_id=templ.template_id, auth_obj=ci.auth)
         c.set_type(ci.get_package_id(packageSize))
-    res = c.commit(url=ci.wcf_baseurl, debug=True)
-    print(res)
+    res = c.commit(url=ci.wcf_baseurl, debug=not silent)
+    if silent != True:
+        print(res)
 
     
     time.sleep(5)
@@ -94,7 +95,8 @@ def importConfig(filecont, installer = None):
         }
         status = 0
         while status != 3:
-            print('.')
+            if silent != True:
+                print('.')
             ci = CloudInterface(dc=1)
             ci.login(username=username, password=password, load=True)            
             vm = ci.get_vm(machineName)[0]
@@ -107,11 +109,14 @@ def importConfig(filecont, installer = None):
                     ssh.connect(assignedIp, username='root', password=machinePassword)
                     #let execute list of command, take it from jsonconfigfile
                     for c in data['execOnServer']:
-                        print('now executing '+c+' ...')
-                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(c)                
-                        print(ssh_stdout.read())
+                        if silent != True:
+                            print('now executing '+c+' ...')
+                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(c)
+                        if silent != True:
+                            print(ssh_stdout.read())
                 if(installer is not None):
-                    print('preparo upload dell\'installer')
+                    if silent != True:
+                        print('preparo upload dell\'installer')
                     cnopts = pysftp.CnOpts()
                     cnopts.hostkeys = None   
                     srv = pysftp.Connection(host=assignedIp, username="root",password=machinePassword,cnopts=cnopts)                
@@ -122,8 +127,9 @@ def importConfig(filecont, installer = None):
                     ssh.connect(assignedIp, username='root', password=machinePassword)
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('chmod 700 '+os.path.basename(installer.name))
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('./'+os.path.basename(installer.name))
-                    print(ssh_stdout.read())
-                    print(ssh_stderr.read())
+                    if silent != True:
+                        print(ssh_stdout.read())
+                        print(ssh_stderr.read())
                     ssh.close()
             else:
                 time.sleep(3)
