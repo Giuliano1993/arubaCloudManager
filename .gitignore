@@ -2,3 +2,4 @@
 todo.md
 *.pyc
 __pycache__
+.vscode

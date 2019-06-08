@@ -35,7 +35,8 @@ class arubaCloudManager:
                 print('HDs Size: '+str(vm.hd_total_size)+'GB')
                 print('HDs qty: '+str(vm.hd_qty))
             print('\n---------------------\n')
-    def getInfo(self,name, details=False):
+    def getInfo(self,details=False):
+        name = raw_input('please enter machine name: ')
         vm = self.ci.get_vm(name)[0]
         print('Machine ID: '+str(vm.sid))
         print('Machine Name: '+vm.vm_name)
