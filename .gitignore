@@ -1,3 +1,4 @@
 .env
 todo.md
 *.pyc
+__pycache__
