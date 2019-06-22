@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     acm = arubaCloudManager(username, password)
     if p.config is not None:
-        silent = True if p.silent is not None else False
+        silent = True if p.silent is not None and p.silent == True else False
         if p.installer is not None:
             acm.importConfig(p.config, p.installer,silent)
         else:
