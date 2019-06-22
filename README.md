@@ -61,7 +61,6 @@ this is the config file schema
     "serverType":"smart",
     "os":"Ubuntu Server 16",
     "rootPassword":"mySecurePassword",
-    "takeSnapshot":true,
     "machineName":"newMachine",
     "packageSize":"small",
     "cpuQty":2,

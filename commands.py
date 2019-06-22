@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import argparse, sys, os, json
 from dotenv import load_dotenv
 from pprint import pprint
@@ -21,8 +22,16 @@ if __name__ == '__main__':
     password = os.getenv('PASSWORD')
     username = os.getenv('USERNAME')
 
+    
 
     acm = arubaCloudManager(username, password)
+    if p.config is not None:
+        silent = True if p.silent is not None else False
+        if p.installer is not None:
+            acm.importConfig(p.config, p.installer,silent)
+        else:
+            acm.importConfig(p.config, None,silent)
+        exit() 
     if p.action == 'new':
         acm.createVM(p)
     elif p.action == 'templateList':
@@ -31,3 +40,5 @@ if __name__ == '__main__':
         acm.getVmList(p.details)
     elif p.action == 'info':
         acm.getInfo(p.details)
+    else:
+        print("you should select an action with -a and ['templateList','new','list','info']")
