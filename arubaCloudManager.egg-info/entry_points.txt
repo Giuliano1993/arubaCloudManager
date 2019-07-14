@@ -1,3 +1,0 @@
-[console_scripts]
-acm = acm.acm:main
-
