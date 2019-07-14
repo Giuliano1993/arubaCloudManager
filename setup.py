@@ -7,10 +7,10 @@ setup(name='arubaCloudManager',
       author='Giuliano Gostinfini',
       author_email='giuliano.gostinfini.93@gmail.com',
       entry_points = {
-        "console_scripts": ['acm = acm:main']
+        "console_scripts": ['acm = acm.acm:main']
         },
       license='MIT',
-      packages=['arubaCloudManager'],
+      packages=['acm'],
       install_requires=[
           'python-dotenv',
           'pyarubacloud',
