@@ -4,3 +4,4 @@ todo.md
 __pycache__
 .vscode
 note.txt
+venv*

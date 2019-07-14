@@ -2,10 +2,11 @@
 import argparse, sys, os, json
 from dotenv import load_dotenv
 from pprint import pprint
-from src.arubaCloudManager import arubaCloudManager
+from arubaCloudManager import arubaCloudManager
 
 load_dotenv()
-if __name__ == '__main__':
+
+def main():
     parser = argparse.ArgumentParser()
     
     parser.add_argument('-t', '--template', help="the name of the template to search", action="store", type=int, dest="template")
@@ -42,3 +43,7 @@ if __name__ == '__main__':
         acm.getInfo(p.details)
     else:
         print("you should select an action with -a and ['templateList','new','list','info']")
+
+
+if __name__ == '__main__':
+    main()
