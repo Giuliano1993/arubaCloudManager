@@ -2,7 +2,10 @@
 import argparse, sys, os, json
 from dotenv import load_dotenv
 from pprint import pprint
-from arubaCloudManager import arubaCloudManager
+try:
+    from acm.arubaCloudManager import arubaCloudManager
+except ImportError:
+    from arubaCloudManager import arubaCloudManager
 
 load_dotenv()
 
