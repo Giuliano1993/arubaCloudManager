@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import argparse, sys, os, json
 from dotenv import load_dotenv
 from pprint import pprint

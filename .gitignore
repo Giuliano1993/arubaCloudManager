@@ -5,3 +5,6 @@ __pycache__
 .vscode
 note.txt
 venv*
+build/
+dist/
+*egg-info
